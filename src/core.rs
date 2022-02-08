@@ -6,7 +6,7 @@ use crate::core::GuessBlock::{Wrong, Correct, Partial};
 
 pub struct WordleWord {
     word: [char; 5],
-    idx: [bool; 26],
+    idx: [u8; 26],
 }
 
 #[derive(Copy, Clone, PartialEq)]
@@ -70,23 +70,33 @@ impl FromStr for GuessResult {
 
 impl WordleWord {
     pub fn new(word: [char; 5]) -> WordleWord {
-        let mut idx = [false; 26];
+        let mut idx = [0 as u8; 26];
         word.into_iter().for_each(|x| {
-            idx[(x as u32 - 'a' as u32) as usize] = true
+            idx[(x as u32 - 'a' as u32) as usize] += 1
         });
         Self { word, idx }
     }
 
     pub fn guess(&self, guessed: &Self) -> GuessResult {
         let mut result = [Wrong; 5];
-        for ((i, cw), gw) in self.word.iter().enumerate().zip(&mut guessed.word.iter()) {
-            result[i] = if cw == gw {
-                Correct
-            } else if self.idx[(*gw as u32 - 97) as usize] {
-                Partial
+        let mut cnt = [0 as u8; 26];
+        for ((i, cw), gw) in self.word.iter().enumerate().zip(guessed.word.iter()) {
+            if cw == gw {
+                result[i] = Correct;
+                cnt[(*cw as u32 - 'a' as u32) as usize] += 1;
+            }
+        }
+        for (i, gw) in guessed.word.iter().enumerate() {
+            if result[i] == Correct {
+                continue;
+            }
+            let j = (*gw as u32 - 'a' as u32) as usize;
+            if cnt[j] < self.idx[j] {
+                cnt[j] += 1;
+                result[i] = Partial;
             } else {
-                Wrong
-            };
+                result[i] = Wrong;
+            }
         }
         GuessResult(result)
     }
