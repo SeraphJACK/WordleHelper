@@ -6,7 +6,7 @@ mod core;
 mod util;
 
 fn main() {
-    let wordlist = util::load_wordlist("static/wordlist.json");
+    let wordlist = util::builtin_wordlist();
     let mut guesser = core::WordleGuesser::new(&wordlist);
     // let humor: WordleWord = "humor".parse().unwrap();
     // let furor: WordleWord = "furor".parse().unwrap();
