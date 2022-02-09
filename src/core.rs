@@ -149,8 +149,8 @@ impl<'list> WordleGuesser<'list> {
     }
 
     pub fn update(&mut self, word: &WordleWord, result: &GuessResult) -> (f64, f64) {
-        let mut ent = word.calc_entropy(&self.possible);
-        let mut prev_len = self.possible.len();
+        let ent = word.calc_entropy(&self.possible);
+        let prev_len = self.possible.len();
         self.possible.retain(|x| &x.guess(word) == result);
         let inf = -(self.possible.len() as f64 / prev_len as f64).log2();
         (ent, inf)
