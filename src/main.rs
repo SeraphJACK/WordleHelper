@@ -32,7 +32,7 @@ fn main() {
             io::stdout().flush().unwrap();
             io::stdin().read_line(&mut result).unwrap();
             let r = guesser.update(&word.trim().parse().unwrap(), &result.trim().parse().unwrap());
-            println!("Entropy: {}, Actual: {}", r.0, r.1);
+            println!("Entropy: {:.2}, Actual: {:.2}", r.0, r.1);
         } else {
             println!("Please input suggest/update, enter nothing to exit.");
         }
@@ -41,5 +41,5 @@ fn main() {
 }
 
 fn print_suggestion(p: (&WordleWord, f64)) {
-    println!("{} - {} bits", p.0.to_string(), p.1);
+    println!("{} - {:.2} bits", p.0.to_string(), p.1);
 }
