@@ -31,7 +31,8 @@ fn main() {
             print!("Please input result: ");
             io::stdout().flush().unwrap();
             io::stdin().read_line(&mut result).unwrap();
-            guesser.update(&word.trim().parse().unwrap(), &result.trim().parse().unwrap());
+            let r = guesser.update(&word.trim().parse().unwrap(), &result.trim().parse().unwrap());
+            println!("Entropy: {}, Actual: {}", r.0, r.1);
         } else {
             println!("Please input suggest/update, enter nothing to exit.");
         }

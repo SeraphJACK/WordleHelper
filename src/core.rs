@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::str::FromStr;
+use rayon::prelude::*;
 use crate::core::GuessBlock::{Wrong, Correct, Partial};
 
 pub struct WordleWord {
@@ -147,15 +148,19 @@ impl<'list> WordleGuesser<'list> {
         Self { list, possible }
     }
 
-    pub fn update(&mut self, word: &WordleWord, result: &GuessResult) {
-        self.possible.retain(|x| &x.guess(word) == result)
+    pub fn update(&mut self, word: &WordleWord, result: &GuessResult) -> (f64, f64) {
+        let mut ent = word.calc_entropy(&self.possible);
+        let mut prev_len = self.possible.len();
+        self.possible.retain(|x| &x.guess(word) == result);
+        let inf = -(self.possible.len() as f64 / prev_len as f64).log2();
+        (ent, inf)
     }
 
     pub fn suggest(&self, max_num: u32) -> Vec<(&'list WordleWord, f64)> {
-        let mut res = Vec::new();
-        for x in self.possible.clone() {
-            res.push((x, x.calc_entropy(&self.possible)));
-        }
+        let mut res: Vec<(&WordleWord, f64)> = self.possible.clone()
+            .into_par_iter()
+            .map(|x| (x, x.calc_entropy(&self.possible)))
+            .collect();
         res.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
         while res.len() as u32 > max_num {
             res.pop();
