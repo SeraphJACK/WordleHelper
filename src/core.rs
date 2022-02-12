@@ -108,13 +108,11 @@ impl WordleWord {
             let count = map.entry(x.guess(self)).or_insert(0 as u32);
             *count += 1;
         });
-        let mut res = 0.0;
-        map.into_iter().for_each(|p| {
-            let p = p.1 as f64 / list.len() as f64;
+        map.into_par_iter().map(|pa| {
+            let p = pa.1 as f64 / list.len() as f64;
             let i = -p.log2();
-            res += i * p;
-        });
-        res
+            i * p
+        }).sum()
     }
 }
 
